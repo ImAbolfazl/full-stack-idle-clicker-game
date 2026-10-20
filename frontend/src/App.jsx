@@ -5,6 +5,7 @@ import goldImg from "./assets/gold.png"
 import glovesImg from "./assets/gloves.webp"
 import knifeImg from "./assets/knife.webp"
 import blueGemImg from "./assets/bluegem.webp"
+import axios from "axios"
 
 const App = () => {
   const [counter, setCounter] = useState(0)
@@ -39,10 +40,12 @@ const App = () => {
   }
   var userShopInfo = localStorage.getItem("userShopInfo") && JSON.parse(localStorage.getItem("userShopInfo"))
 
-  useEffect(() => {
+  useEffect(async () => {
     const uuid = localStorage.getItem("uuid")
     if(!uuid){
       try{
+        const result = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/game/create`)
+        console.log(result);
         
       }catch(err){
         console.log(err);
