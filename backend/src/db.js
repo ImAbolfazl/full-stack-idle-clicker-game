@@ -12,10 +12,10 @@ db.exec(`
     )
 `)
 
-export function createGame(id){
-    try{
-        const stmt = db.prepare("INSERT INTO game (id) VALUES (?)")
-        stmt.run(id)
+export function createGame(id, points, shopInfo){
+    try{        
+        const stmt = db.prepare("INSERT INTO game (id, points, shopInfo) VALUES (?, ?, ?)")
+        stmt.run(id, points, shopInfo)
     }catch(err){
         console.log(err);
         throw err;
