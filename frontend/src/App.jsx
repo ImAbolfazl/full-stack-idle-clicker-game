@@ -9,8 +9,8 @@ import blueGemImg from "./assets/bluegem.webp"
 const App = () => {
   const [counter, setCounter] = useState(0)
   const [pts, setPts] = useState(0)
-  
   const [clicks, setClicks] = useState([])
+  const [shopInfo, setShopInfo] = useState(null)
 
   const formatNumberLong = (num) => {
     return new Intl.NumberFormat('en-US', {
@@ -38,6 +38,17 @@ const App = () => {
     }))
   }
   var userShopInfo = localStorage.getItem("userShopInfo") && JSON.parse(localStorage.getItem("userShopInfo"))
+
+  useEffect(() => {
+    const uuid = localStorage.getItem("uuid")
+    if(!uuid){
+      try{
+        
+      }catch(err){
+        console.log(err);
+      }
+    }
+  }, [])
 
   function handleClick(e){
     var multiplier = 1
