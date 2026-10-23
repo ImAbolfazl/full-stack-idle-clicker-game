@@ -7,7 +7,7 @@ const db = new Database(dbPath)
 db.exec(`
     CREATE TABLE IF NOT EXISTS game (
         id TEXT PRIMARY KEY,
-        points INTEGER,
+        points REAL,
         shopInfo TEXT
     )
 `)

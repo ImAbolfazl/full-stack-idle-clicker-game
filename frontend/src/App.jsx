@@ -1,11 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react'
-import ohneImg from "./assets/ohnepixel.webp"
 import caseImg from "./assets/case.png"
 import goldImg from "./assets/gold.png"
 import glovesImg from "./assets/gloves.webp"
 import knifeImg from "./assets/knife.webp"
 import blueGemImg from "./assets/bluegem.webp"
+import furyImg from "./assets/fury.png"
+import ohneImg from "./assets/ohnepixel.webp"
+import s1mpleImg from "./assets/s1mple.png"
+import donkImg from "./assets/donk.webp"
 import axios from "axios"
+import { toast, ToastContainer } from 'react-toastify';
 
 const App = () => {
   const [counter, setCounter] = useState(0)
@@ -49,11 +53,31 @@ const App = () => {
   }, []);
 
   const formatNumberLong = (num) => {
-    return new Intl.NumberFormat('en-US', {
-      notation: 'compact',
-      compactDisplay: 'long',
-      maximumFractionDigits: 1
-    }).format(num);
+    const n = Number(num);
+    if (isNaN(n) || n < 1000) return Math.floor(n || 0).toString();
+
+    const suffixes = [
+      "", "thousand", "million", "billion", "trillion", 
+      "quadrillion", "quintillion", "sextillion", "septillion", 
+      "octillion", "nonillion", "decillion", "undecillion", 
+      "duodecillion", "tredecillion", "quattuordecillion", "quindecillion",
+      "sexdecillion", "septendecillion", "octodecillion", "novemdecillion",
+      "vigintillion", "unvigintillion", "duovigintillion", "trevigintillion",
+      "quattuorvigintillion", "quinvigintillion", "sexvigintillion", "septenvigintillion",
+      "octovigintillion", "novemvigintillion", "trigintillion"
+    ];
+
+    const tier = Math.floor(Math.log10(Math.abs(n)) / 3);
+
+    if (tier >= suffixes.length) {
+      return n.toExponential(1);
+    }
+
+    const scale = Math.pow(10, tier * 3);
+    const scaled = n / scale;
+    const formatted = scaled.toFixed(1).replace(/\.0$/, '');
+
+    return `${formatted} ${suffixes[tier]}`;
   };
 
   const shopMap = [
@@ -133,13 +157,22 @@ const App = () => {
     }, 800)
   }
 
-  function handleShopClick(item){
+  function handleShopClick(event, item){
     const price = item.initialPrice * (userShopInfo[item.name]?.level == 0 ? 1 : userShopInfo[item.name]?.level)
     if(counter >= price){
-      setCounter(prev => prev - price)
-      userShopInfo[item.name].level += 1
+      if(event.shiftKey && counter >= price * 10){
+        var tenprice = price
+        for(var i = 1; i <= 10; i++){
+          tenprice = tenprice + item.initialPrice
+        }
+        setCounter(prev => prev - (price * 10))
+        userShopInfo[item.name].level += 10
+      }else{
+        setCounter(prev => prev - price)
+        userShopInfo[item.name].level += 1
+      }
     }else{
-      console.log("Not enough money");
+      toast.error("Not Enough Points!")
     }
   }
 
@@ -168,6 +201,16 @@ const App = () => {
   if(!loading){
     return (
       <div className='flex select-none min-h-screen bg-gray-900 text-gray-100 overflow-hidden font-sans'>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={1000}
+          theme="dark"
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          draggable
+          limit={3}
+        />
         <style>
           {`
             @keyframes floatUp {
@@ -198,11 +241,17 @@ const App = () => {
         ))}
 
         <div className='w-[70vw] flex items-center h-screen flex-col justify-center relative'>
-          <img 
-            draggable={false} 
-            src={ohneImg} 
-            alt="ohne" 
-            className='w-64 md:w-80 lg:w-96 cursor-pointer drop-shadow-2xl transition-transform duration-100 hover:scale-105 active:scale-95' 
+          <img
+            draggable={false}
+            src={
+              counter > 100000000 ? donkImg :
+              counter > 50000000 ? s1mpleImg :
+              counter > 10000000 ? ohneImg :
+              counter > 1000000 ? furyImg :
+              furyImg
+            }
+            alt="main image"
+            className="w-64 md:w-80 lg:w-96 cursor-pointer drop-shadow-2xl transition-transform duration-100 hover:scale-105 active:scale-95"
             onClick={handleClick}
           />
         </div>
@@ -222,7 +271,7 @@ const App = () => {
                     ${canAfford 
                       ? 'bg-gray-700 border-gray-600 hover:border-gray-500 cursor-pointer shadow-md' 
                       : 'bg-gray-800 border-gray-700 opacity-60 cursor-not-allowed'}`}
-                  onClick={() => handleShopClick(item)}
+                  onClick={() => handleShopClick(event, item)}
                 >
                                   <div className="flex items-center gap-4 relative z-10 transition-opacity duration-200 group-hover:opacity-0">
                     <div className="bg-gray-900/50 p-2 rounded-lg">
@@ -249,6 +298,7 @@ const App = () => {
                         Buy for {formatNumberLong(currentPrice)}
                       </span>
                     </div>
+                    <p className='text-gray-500 text-[13px]'>hold shift to buy 10</p>
                   </div>
 
                 </div>
